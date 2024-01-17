@@ -1,8 +1,8 @@
-# Introduce
+# 介绍
 
 self-hosting deploy 
 
-# Usage
+# 使用
 
 ```sh
 docker-compose --profile with-deps up

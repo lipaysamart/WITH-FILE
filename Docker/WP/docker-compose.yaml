@@ -1,0 +1,66 @@
+version: "3.8"
+services:
+  db:
+    container_name: db
+    image: registry.cn-guangzhou.aliyuncs.com/kubernetes-default/mysql:5.7
+    # ports:
+    #   - 3306:3306
+    volumes:
+      - ./db:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    networks:
+      - wp_default
+
+  wordpress:
+    container_name: wp
+    image: registry.cn-guangzhou.aliyuncs/kubernetes-default/wordpress:6.4.2
+    restart: always
+    # ports:
+    #   - 8080:80
+    volumes:
+      - ./wp/wp-config:/var/www/html
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    depends_on:
+      - db
+    networks:
+      - wp_default
+
+  web:
+    container_name: nginx
+    image: registry.cn-guangzhou.aliyuncs.com/kubernetes-default/nginx:1.21
+    environment:
+        TZ : 'Asia/Shanghai'
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d # 配置文件
+      - ./ssl:/usr/share/certbot/ssl # 证书位置
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    networks:
+      - wp_default
+
+  certbot:
+    container_name: certbot
+    image: registry.cn-guangzhou.aliyuncs.com/kubernetes-default/certbot:v2.8.0
+    profiles:
+      - pub
+    volumes:
+      - ./ssl:/etc/letsencrypt # 证书位置
+    depends_on:
+      - web
+    networks:
+      - wp_default
+
+networks:
+  wp_default:
+    driver: bridge
