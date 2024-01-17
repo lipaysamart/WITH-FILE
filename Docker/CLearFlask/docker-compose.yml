@@ -1,0 +1,96 @@
+## SPDX-FileCopyrightText: 2019-2022 Matus Faro <matus@smotana.com>
+## SPDX-License-Identifier: Apache-2.0
+version: '3.8'
+volumes:
+  data:
+    driver: local
+services:
+  clearflask-connect:
+    image: ghcr.io/clearflask/clearflask-connect:latest
+    depends_on:
+      - clearflask-server
+    # ports:
+    #   - 9080
+    #   - 9443
+    environment:
+      - NODE_ENV=production
+      - ENV=selfhost
+      - CLEARFLASK_CREATE_CONNECT_CONFIG_IF_MISSING=1
+    volumes:
+      - ./connect:/opt/clearflask/
+    networks:
+      - cf
+  clearflask-server:
+    image: ghcr.io/clearflask/clearflask-server:latest
+    # ports:
+    #   - 8080:8080
+      # JMX (Disabled by default)
+      # - 9950:9950
+      # - 9951:9951
+    environment:
+      - CLEARFLASK_ENVIRONMENT=PRODUCTION_SELF_HOST
+      - CLEARFLASK_CREATE_SERVER_CONFIG_IF_MISSING=1
+    volumes:
+      - ./server:/opt/clearflask/
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/api/health" ]
+      interval: 5s
+      timeout: 15s
+      retries: 2
+    networks:
+      - cf
+  mysql-db:
+    image: registry.cn-guangzhou.aliyuncs.com/kubernetes-default/mysql:5.7.43
+    command:
+      - 'mysqld'
+      - '--port=3306'
+      - '--sql-mode=IGNORE_SPACE'
+      - '--explicit-defaults-for-timestamp'
+      - '--secure-file-priv=/tmp'
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    # ports:
+    #   - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=clearflask
+    networks:
+      - cf
+  # For DynamoDB, S3 and SES alternative
+  localstack:
+    image: localstack/localstack:0.14.3
+    profiles:
+      - with-deps
+    expose:
+      - 4566
+      - 4571
+    environment:
+      - DEFAULT_REGION=us-east-1
+      - LOCALSTACK_HOSTNAME=localstack
+      - HOSTNAME_EXTERNAL=localstack
+      - SERVICES=dynamodb,ses,s3
+      - LS_LOG=warn
+      - START_WEB=0
+      - USE_SSL=0
+      - FORCE_NONINTERACTIVE=true
+      - DATA_DIR=/tmp/localstack/data
+      - LEGACY_PERSISTENCE=1
+    volumes:
+      - ./data/localstack:/tmp/localstack
+    networks:
+      - cf
+  web:
+    image: nginx:1.21
+    environment:
+        TZ : 'Asia/Shanghai'
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d # 配置文件
+      - ./ssl:/etc/nginx/https #证书位置，同上
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    networks:
+      - cf
+networks:
+  cf:
+    driver: bridge
