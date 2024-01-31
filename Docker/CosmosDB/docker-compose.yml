@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  cosmosdb:
+    restart: always
+    container_name: "azure-cosmosdb-emulator"
+    hostname: "azurecosmosemulator"
+    image: registry.cn-guangzhou.aliyuncs.com/kubernetes-default/azure-cosmos-emulator:2023-11-30
+    mem_limit: 4GB
+    tty: true
+    ports:
+    - '8081:8081' # Data Explorer
+    - '8900-8902:8900-8902'
+    - '10250-10256:10250-10256'
+    - '10350:10350'
+    environment:
+      # 容器数量限制
+      - AZURE_COSMOS_EMULATOR_PARTITION_COUNT=10
+      # 数据持久化
+      - AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=false
+      # 额外 IP
+      - AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE=172.20.1.18
+    networks:
+      - cosmos
+networks:
+  cosmos:
+    driver: bridge

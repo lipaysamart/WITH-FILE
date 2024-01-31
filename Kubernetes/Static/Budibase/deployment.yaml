@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: budibase-deployment
+  name: budibase-deployment
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: budibase-deployment
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: budibase-deployment
+    spec:
+      affinity: {}
+      containers:
+        - env:
+            - name: client_max_body_size
+              value: 100M
+            - name: NGINX_MAX_BODY_SIZE
+              value: 100M
+            - name: QUERY_THREAD_TIMEOUT
+              value: '600'
+          image: 'budibase/budibase:2.10.12'
+          imagePullPolicy: IfNotPresent
+          name: budibase-deployment
+          resources:
+            limits:
+              memory: 2Gi
+            requests:
+              memory: 2Gi
+          volumeMounts:
+            - mountPath: /data
+              name: volume-budibase-pvc
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      volumes:
+        - name: volume-budibase-pvc
+          persistentVolumeClaim:
+            claimName: budibase-pvc
