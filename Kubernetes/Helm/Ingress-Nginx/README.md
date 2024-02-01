@@ -1,4 +1,6 @@
-## 使用
+## Install
+
+### Helm Install
 
 ```sh
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
@@ -6,11 +8,13 @@ helm repo update
 helm upgrade --install ingress-nginx/ingress-nginx -f values.yaml --namespace ingress-nginx --create-namespace --version 4.7.1
 ```
 
-### 示例配置
+## Reference
+
+### Sample Example
 
 - https://github.com/kubernetes/ingress-nginx/tree/main/docs/examples
 
-### 版本兼容
+### Compatible Version
 
 |  Supported  | Ingress-NGINX version | k8s supported version        | Alpine Version | Nginx Version | Helm Chart Version |
 |:--:|-----------------------|------------------------------|----------------|---------------|------------------------------|
@@ -32,10 +36,10 @@ helm upgrade --install ingress-nginx/ingress-nginx -f values.yaml --namespace in
 |    | v1.3.1                | 1.24, 1.23, 1.22, 1.21, 1.20 | 3.16.2         | 1.19.10†      | 4.2.5              |
 |    | v1.3.0                | 1.24, 1.23, 1.22, 1.21, 1.20 | 3.16.0         | 1.19.10†      | 4.2.3              |
 
-### 配置说明
+### Configuration
 
 - https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/README.md
 
-### 注解配置
+### Annotation
 
 - https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md

@@ -1,4 +1,6 @@
-## 使用
+## Install
+
+### Helm Install
 
 ```sh
 helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
@@ -6,7 +8,7 @@ helm repo update
 helm upgrade --install csi-driver-nfs csi-driver-nfs/csi-driver-nfs -f values.yaml --namespace kube-system --version v4.6.0
 ```
 
-### 创建存储类
+### Sample Example
 
 ```sh
 apiVersion: storage.k8s.io/v1
@@ -26,7 +28,9 @@ mountOptions:
   - nfsvers=4.1
 ```
 
-### 配置说明
+## Reference
+
+### Configuration
 
 | Parameter                                         | Description                                                | Default                                                           |
 |---------------------------------------------------|------------------------------------------------------------|-------------------------------------------------------------------|
@@ -97,7 +101,7 @@ mountOptions:
 | `externalSnapshotter.resources.requests.cpu`          | snapshot-controller cpu requests limits                    | 10m                                                            |
 | `externalSnapshotter.resources.requests.memory`       | snapshot-controller memory requests limits                 | 20Mi                                                           |
 
-## Troubleshooting
+### Troubleshooting
 
  - Add `--wait -v=5 --debug` in `helm install` command to get detailed error
  - Use `kubectl describe` to acquire more info

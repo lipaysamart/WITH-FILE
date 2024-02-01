@@ -1,6 +1,6 @@
-### Install
+## Install
 
-#### Install CRDs
+### Install CRDs
 
 > CRD 和 程序不建议都用 Helm 装, 以便到时候 Helm 卸载时, CRD 不会被删除。
 
@@ -8,7 +8,7 @@
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.11.0/cert-manager.yaml
 ```
 
-#### Install Cert-Manager
+### Helm Install
 
 ```sh
 helm repo add jetstack https://charts.jetstack.io

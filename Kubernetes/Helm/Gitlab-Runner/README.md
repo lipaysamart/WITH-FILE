@@ -1,4 +1,6 @@
-## Helm Install
+## Install
+
+### Helm Install
 
 ```sh
 helm repo add gitlab https://charts.gitlab.io
