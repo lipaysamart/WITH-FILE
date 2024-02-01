@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: gitlab
+  name: gitlab-deployment
+  namespace: gitlab-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: gitlab
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        k8s-app: gitlab
+    spec:
+      serviceAccountName: gitlab-sa
+      containers:
+      - image: gitlab/gitlab-ee:13.12.15-ee.0
+        name: gitlab-deployment
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 80
+            name: web
+            protocol: TCP
+          - containerPort: 22
+            name: agent
+            protocol: TCP
+        resources:
+          requests:
+            cpu: '2'
+            memory: 4Gi
+        livenessProbe:
+          httpGet:
+            path: /users/sign_in
+            port: 80
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          failureThreshold: 12
+        readinessProbe:
+          httpGet:
+            path: /users/sign_in
+            port: 80
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          failureThreshold: 12
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/gitlab
+          name: gitlab-conf
+        - mountPath: /var/opt/gitlab
+          name: gitlab-data
+        - mountPath: /var/log/gitlab
+          name: gitlab-log
+        - mountPath: /var/opt/gitlab/backups
+          name: gitlab-backup
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 60
+      nodeSelector:
+        kubernetes.io/hostname: worker-edge-1
+      volumes:
+        - name: gitlab-conf
+          persistentVolumeClaim:
+            claimName: gitlab-pvc
+        - name: gitlab-log
+          persistentVolumeClaim:
+            claimName: gitlab-pvc
+        - name: gitlab-data
+          persistentVolumeClaim:
+            claimName: gitlab-pvc
+        - name: gitlab-backup
+          persistentVolumeClaim:
+            claimName: gitlab-pvc

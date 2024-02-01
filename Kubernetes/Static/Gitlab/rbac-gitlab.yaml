@@ -1,0 +1,50 @@
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: gitlab
+  namespace: gitlab-system
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["create","delete","get","list","patch","update","watch"]
+- apiGroups: [""]
+  resources: ["pods/exec"]
+  verbs: ["create","delete","get","list","patch","update","watch"]
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get","list","watch"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: gitlab
+  namespace: gitlab-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: gitlab
+subjects:
+- kind: ServiceAccount
+  name: gitlab-sa
+  namespace: gitlab-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    k8s-app: gitlab
+  name: gitlab-sa
+  namespace: gitlab-system
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gitlab-secret
+  namespace: gitlab-system
+  annotations:
+    kubernetes.io/service-account.name: "gitlab-sa"
+type: kubernetes.io/service-account-token

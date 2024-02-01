@@ -1,0 +1,44 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    k8s-app: gitlab
+  name: gitlab-service
+  namespace: gitlab-system
+spec:
+  type: NodePort
+  ports:
+    - name: web
+      port: 80
+      targetPort: 80
+      nodePort: 30018
+    - name: slave
+      port: 22
+      targetPort: 22
+      nodePort: 30022
+  selector:
+    k8s-app: gitlab
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gitlab-ingress
+  namespace: gitlab-system
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: gitlab.k8s.local
+    http:
+      paths:
+      - pathType: Prefix
+        path: /
+        backend:
+          service:
+            name: gitlab-service
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - gitlab.k8s.local
+    secretName: gitlab-ca
