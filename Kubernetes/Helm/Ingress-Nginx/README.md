@@ -8,12 +8,6 @@ helm repo update
 helm upgrade --install ingress-nginx/ingress-nginx -f values.yaml --namespace ingress-nginx --create-namespace --version 4.7.1
 ```
 
-## Reference
-
-### Sample Example
-
-- https://github.com/kubernetes/ingress-nginx/tree/main/docs/examples
-
 ### Compatible Version
 
 |  Supported  | Ingress-NGINX version | k8s supported version        | Alpine Version | Nginx Version | Helm Chart Version |
@@ -36,10 +30,9 @@ helm upgrade --install ingress-nginx/ingress-nginx -f values.yaml --namespace in
 |    | v1.3.1                | 1.24, 1.23, 1.22, 1.21, 1.20 | 3.16.2         | 1.19.10†      | 4.2.5              |
 |    | v1.3.0                | 1.24, 1.23, 1.22, 1.21, 1.20 | 3.16.0         | 1.19.10†      | 4.2.3              |
 
-### Configuration
 
-- https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/README.md
+## Reference
 
-### Annotation
-
-- https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md
+- [Simple Example](https://github.com/kubernetes/ingress-nginx/tree/main/docs/examples)
+- [Configuration](https://github.com/kubernetes/ingress-nginx/blob/main/charts/ingress-nginx/README.md)
+- [Annotation](https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md)

@@ -1,14 +1,10 @@
-# 介绍
-
-self-hosting deploy 
-
-# 使用
+## Usage
 
 ```sh
 docker-compose up -d
 ```
 
-## 证书颁发
+## Certificate issuance
 
 - 通过 `http` 请求验证，会向 `http://你的域名/.well-known/acme-challenge/` 发送一条请求。
 - 通过 `dns` 解析，需要在域名解析中增加一条 `_acme-challenge.你的域名` 的 `TXT` 记录用于验证。
@@ -27,7 +23,7 @@ docker-compose run --rm  certbot certonly --manual --preferred-challenges=dns --
 # 输入邮箱等信息，如果提示The dry run was successful则说明成功，可以去掉--dry-run参数来进行实际的获取证书
 ```
 
-## 证书续订
+## Certificate renewal
 
 ```sh
 # 1. 切换到docker-compose.yml所在目录；

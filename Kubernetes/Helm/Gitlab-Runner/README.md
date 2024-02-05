@@ -10,6 +10,6 @@ helm upgrade --install gitlab/gitlab-runner -f values.yaml --namespace gitlab-sy
 
 ## Reference
 
-- https://archives.docs.gitlab.com/15.11/runner/install/
-- https://archives.docs.gitlab.com/15.11/runner/configuration/
-- https://archives.docs.gitlab.com/15.11/runner/faq/
+- [Install](https://archives.docs.gitlab.com/15.11/runner/install/)
+- [Configuration](https://archives.docs.gitlab.com/15.11/runner/configuration/)
+- [TroubleShooting](https://archives.docs.gitlab.com/15.11/runner/faq/)
