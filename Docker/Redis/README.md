@@ -1,4 +1,4 @@
-## 使用
+## Usage
 
 ```sh
 docker-compose up -d
@@ -12,7 +12,7 @@ docker run --name redis \
 -d registry.cn-guangzhou.aliyuncs.com/kubernetes-default/redis:6.0.20 redis-server /etc/redis/redis.conf
 ```
 
-### 官方配置文件
+### Sample Configuration File
 
 ```bash
 wget https://raw.githubusercontent.com/redis/redis/6.0/redis.conf

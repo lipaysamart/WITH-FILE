@@ -31,7 +31,7 @@ DNS-01 的校验原理是利用 DNS 提供商的 API Key 拿到 DNS 控制权限
 2. HTTP-01 校验
 HTTP-01 的校验原理是给域名指向的 HTTP 服务增加一个临时 location ，Let’s Encrypt 会发送 HTTP 请求到 http:///.well-known/acme-challenge/，参数中 YOUR_DOMAIN 就是被校验的域名，TOKEN 是 ACME 协议的客户端负责放置的文件，ACME 客户端就是 cert-manager，它通过修改或创建 Ingress 规则来增加这个临时校验路径并指向提供 TOKEN 的服务。Let’s Encrypt 会对比 TOKEN 是否符合预期，校验成功后就会颁发证书。此方法仅适用于给使用 Ingress 暴露流量的服务颁发证书，不支持泛域名证书。
 
-### Sample Example
+### Simple Example
 
 1. 创建CA集群证书颁发者:
 
@@ -81,3 +81,11 @@ spec:
     - example.k8s.local
     secretName: example-tls
 ```
+
+## Reference
+
+- [TroubleShooting](https://cert-manager.io/docs/troubleshooting/acme/)
+- [cert-manager 续订证书失败](https://github.com/cert-manager/cert-manager/issues/3896)
+- [颁发 HTTP-01 证书时，Challenge 为 404 期待 200](https://github.com/cert-manager/cert-manager/issues/2517)
+- [cert-manager 升级更新](https://cert-manager.io/docs/installation/upgrade/)
+- [cert-manager 所有 CRD 资源对象备份](https://cert-manager.io/docs/devops-tips/backup/)

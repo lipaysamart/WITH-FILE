@@ -8,4 +8,4 @@ helm upgrade --install gitlab-operator gitlab-operator/gitlab-operator --create-
 
 ## Reference
 
-- https://archives.docs.gitlab.com/15.11/operator/
+- [operator](https://archives.docs.gitlab.com/15.11/operator/)

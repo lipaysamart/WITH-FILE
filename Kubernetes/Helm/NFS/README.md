@@ -8,7 +8,7 @@ helm repo update
 helm upgrade --install csi-driver-nfs csi-driver-nfs/csi-driver-nfs -f values.yaml --namespace kube-system --version v4.6.0
 ```
 
-### Sample Example
+### Simple Example
 
 ```sh
 apiVersion: storage.k8s.io/v1
