@@ -1,9 +1,7 @@
 {
-    "port": 8080,
+    "port": 80,
     "baseURL": "",
     "address": "",
-    "username": "admin",
-    "password": "admin",
     "log": "stdout",
     "database": "/database.db",
     "root": "/srv"
