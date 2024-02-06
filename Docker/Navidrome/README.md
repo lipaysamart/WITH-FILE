@@ -2,6 +2,9 @@
 
 ```sh
 docker-compose up -d
+
+# 使用 filebrowser 管理 music 目录
+docker-compose --profile with-deps up -d
 ```
 
 ### Environment
@@ -23,9 +26,9 @@ docker-compose up -d
 - 桌面端: feishin（Windows/Linux/MacOS）
 - Android: Ultrasonic
 
-### Internal
+## Internal
 
-#### Use Webadv External Storage
+### Use Webadv External Storage
 
 >开机自动挂载 Webadv
 
@@ -46,3 +49,9 @@ mount -t davfs https://pan.cloud.com/dav /cloud
 chmod +x /etc/rc.local
 ```
 `df -h` 查看是否挂载成功
+
+## Reference
+
+- [filebrowser docs](https://filebrowser.org/)
+- [navidrome docs](https://www.navidrome.org/docs/)
+- [navidrome support client](https://www.navidrome.org/docs/overview/#apps)
