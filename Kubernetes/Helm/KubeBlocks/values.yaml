@@ -1,0 +1,472 @@
+## @section Common parameters
+##
+
+versionOverride:
+
+## KubeBlocks container image settings
+##
+## @param image.registry KubeBlocks image registry
+## @param image.repository KubeBlocks image repository
+## @param image.pullPolicy KubeBlocks image pull policy
+## @param image.tag KubeBlocks image tag (immutable tags are recommended)
+## @param image.imagePullSecrets KubeBlocks image pull secrets
+## @param image.tools.repository KubeBlocks tools image repository
+image:
+  registry: infracreate-registry.cn-zhangjiakou.cr.aliyuncs.com
+  repository: apecloud/kubeblocks
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+  imagePullSecrets: []
+  tools:
+    repository: apecloud/kubeblocks-tools
+  datascript:
+    repository: apecloud/kubeblocks-datascript
+
+## @param replicaCount
+##
+replicaCount: 1
+
+## @param nameOverride
+##
+nameOverride: ""
+
+## @param fullnameOverride
+##
+fullnameOverride: ""
+
+
+## KubeBlocks RBAC access priority setting
+##
+## @param rbac.enabled is used to enable or disable KubeBlocks RBAC access priority.
+## By enabling this feature, KubeBlocks can ensure resource accessibility for the
+## cluster's pods, which are required to efficiently manage the cluster. By default,
+## it is set to true. When RBAC access priority is enabled, KubeBlocks will have
+## the following permissions:
+##   groups=core,resources=serviceaccounts,verbs=get;list;watch;create;update;patch;delete
+##   groups=core,resources=serviceaccounts/status,verbs=get;update;patch
+##   groups=core,resources=serviceaccounts/finalizers,verbs=update
+##
+##   groups=rbac.authorization.k8s.io,resources=rolebindings,verbs=get;list;watch;create;update;patch;delete
+##   groups=rbac.authorization.k8s.io,resources=rolebindings/status,verbs=get;update;patch
+##   groups=rbac.authorization.k8s.io,resources=rolebindings/finalizers,verbs=update
+##
+##   groups=rbac.authorization.k8s.io,resources=clusterrolebindings,verbs=get;list;watch;create;update;patch;delete
+##   groups=rbac.authorization.k8s.io,resources=clusterrolebindings/status,verbs=get;update;patch
+##   groups=rbac.authorization.k8s.io,resources=clusterrolebindings/finalizers,verbs=update
+##
+## If it is set to false, then you will need to create the service account
+## named `cluster.ComponentSpec.ServiceAccountName` and the corresponding (cluster) role binding
+## manually or through the cluster's Helm template, as shown in the example:
+##   helm install mysql apecloud-mysql-cluster
+rbac:
+  enabled: true
+
+## Deployment update strategy.
+## Ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+##
+## @param updateStrategy.rollingUpdate
+## @param updateStrategy.type
+updateStrategy:
+  rollingUpdate:
+    maxSurge: 1
+    maxUnavailable: 40%
+  type: RollingUpdate
+
+## Change `hostNetwork` to `true` when you want the KubeBlocks's pod to share its host's network namespace.
+## Useful for situations like when you end up dealing with a custom CNI over Amazon EKS.
+## Update the `dnsPolicy` accordingly as well to suit the host network mode.
+##
+## @param hostNetwork
+##
+# hostNetwork: false
+hostNetwork: true
+
+## `dnsPolicy` determines the manner in which DNS resolution happens in the cluster.
+## In case of `hostNetwork: true`, usually, the `dnsPolicy` is suitable to be `ClusterFirstWithHostNet`.
+## For further reference: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy.
+##
+## @param dnsPolicy
+##
+# dnsPolicy: ClusterFirst
+dnsPolicy: ClusterFirstWithHostNet
+
+## Configure podDisruptionBudget spec settings
+##
+## @param podDisruptionBudget.minAvailable
+## @param podDisruptionBudget.maxUnavailable
+podDisruptionBudget:
+  # Configures the minimum available pods for KubeBlocks disruptions.
+  # Cannot be used if `maxUnavailable` is set.
+  minAvailable: 1
+  # Configures the maximum unavailable pods for KubeBlocks disruptions.
+  # Cannot be used if `minAvailable` is set.
+  maxUnavailable:
+
+
+## Logger settings
+##
+## @param loggerSettings.developmentMode
+## @param loggerSettings.encoder
+## @param loggerSettings.level
+## @param loggerSettings.timeEncoding
+loggerSettings:
+  # Development Mode defaults(encoder=consoleEncoder,logLevel=Debug,stackTraceLevel=Warn).
+  # Production Mode defaults(encoder=jsonEncoder,logLevel=Info,stackTraceLevel=Error) (default false)
+  developmentMode: false
+  # log encoding (one of 'json' or 'console')
+  encoder: console
+  # log level, can be one of 'debug', 'info', 'error', or any integer value > 0
+  # which corresponds to custom debug levels of increasing verbosity.
+  level:
+  # Zap time encoding (one of 'epoch', 'millis', 'nano', 'iso8601', 'rfc3339' or
+  # 'rfc3339nano'). Defaults to 'iso8601'.
+  timeEncoding: 'iso8601'
+
+## ServiceAccount settings
+##
+## @param serviceAccount.create
+## @param serviceAccount.annotations
+## @param serviceAccount.name
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+## @param podAnnotations
+##
+podAnnotations: {}
+
+## Security context settings
+##
+## @param securityContext.allowPrivilegeEscalation
+## @param securityContext.capabilities
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+    - ALL
+
+## Pod security context settings
+##
+## @param podSecurityContext.runAsNonRoot
+## @param podSecurityContext.readOnlyRootFilesystem
+## @param podSecurityContext.runAsUser
+## @param podSecurityContext.fsGroup
+## @param podSecurityContext.seccompProfile
+podSecurityContext:
+  runAsNonRoot: true
+  # readOnlyRootFilesystem: true
+  # runAsUser: 1000
+  # fsGroup: 2000
+  # TODO(user): For common cases that do not require escalating privileges
+  # it is recommended to ensure that all your Pods/Containers are restrictive.
+  # More info: https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted
+  # Please uncomment the following code if your project does NOT have to work on old Kubernetes
+  # versions < 1.19 or on vendors versions which do NOT support this field by default (i.e. Openshift < 4.11 ).
+  # seccompProfile:
+  #   type: RuntimeDefault
+
+## Service settings
+##
+## @param service.type
+## @param service.port
+## @param service.nodePort
+service:
+  type: ClusterIP
+  port: 9443
+  # -- Service node port.
+  # Only used if `service.type` is `NodePort`.
+  nodePort:
+
+
+## Metrics serviceMonitor parameters
+## Enable this if you're using Prometheus Operator
+##
+## @param serviceMonitor.enabled
+## @param serviceMonitor.port
+## @param serviceMonitor.nodePort
+serviceMonitor:
+  enabled: false
+  # metrics server will be exposed at this port.
+  port: 8080
+  # Only used if `service.type` is `NodePort`.
+  nodePort:
+
+## KubeBlocks pods deployment topologySpreadConstraints settings
+##
+## @param topologySpreadConstraints
+topologySpreadConstraints: []
+
+
+## Resource settings
+##
+## @param resources.limits
+## @param resources.requests
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # TODO(user): Configure the resources accordingly based on the project requirements.
+  # More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  # limits:
+  #   cpu: 500m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 10m
+#   memory: 64Mi
+
+## @param priorityClassName
+##
+priorityClassName:
+
+## Autoscaling settings
+##
+## @param autoscaling.enabled
+## @param autoscaling.minReplicas
+## @param autoscaling.maxReplicas
+## @param autoscaling.targetCPUUtilizationPercentage
+## @param autoscaling.targetMemoryUtilizationPercentage
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+
+
+## @param nodeSelector
+##
+nodeSelector: {}
+
+## @param tolerations
+##
+tolerations:
+- key: ack-pool-name
+  operator: Exists
+  effect: NoSchedule
+
+## @param affinity
+##
+affinity: {}
+
+## @param data plane settings
+##
+dataPlane:
+  tolerations:
+  - key: ack-pool-name
+    operator: Exists
+    effect: NoSchedule
+
+  affinity: {}
+
+## AdmissionWebhooks settings
+##
+## @param admissionWebhooks.enabled
+## @param admissionWebhooks.createSelfSignedCert
+## @param admissionWebhooks.ignoreReplicasCheck
+admissionWebhooks:
+  enabled: false
+  createSelfSignedCert: true
+  ignoreReplicasCheck: false
+
+## Data protection settings
+##
+## @param dataProtection.enabled - set the dataProtection controllers for backup functions
+## @param dataProtection.gcFrequencySeconds - the frequency of garbage collection
+dataProtection:
+  enabled: true
+  # customizing the encryption key is strongly recommended.
+  # if you do not specify a custom key, the default key will be used.
+  # using the default key can potentially lead to the exposure of database passwords
+  # if 'get/list' role of the backup CR are compromised.
+  encryptionKey: ""
+  gcFrequencySeconds: 3600
+
+  image:
+    # if the value of dataProtection.image.registry is not specified using `--set`, it will be set to the value of 'image.registry' by default
+    registry: ""
+    repository: apecloud/kubeblocks-dataprotection
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ""
+    imagePullSecrets: []
+    datasafed:
+      repository: apecloud/datasafed
+      tag: "0.1.0"
+
+## BackupRepo settings
+##
+## @param backupRepo.create - creates a backup repo during installation
+## @param backupRepo.default - set the created repo as the default
+## @param backupRepo.accessMethod - the access method for the backup repo, options: [Mount, Tool]
+## @param backupRepo.storageProvider - the storage provider used by the repo, options: [s3, oss, minio]
+## @param backupRepo.pvReclaimPolicy - the PV reclaim policy, options: [Retain, Delete]
+## @param backupRepo.volumeCapacity - the capacity for creating PVC
+## @param backupRepo.config - a key-value map containing the settings required by the storage provider
+## @param backupRepo.secrets - a key-value map containing the secret values required by the storage provider
+backupRepo:
+  create: false
+  default: false
+  accessMethod: Tool
+  storageProvider: ""
+  pvReclaimPolicy: "Retain"
+  volumeCapacity: ""
+  config:
+    bucket: ""
+    endpoint: ""
+    region: ""
+  secrets:
+    accessKeyId: ""
+    secretAccessKey: ""
+
+  ## Addon controller settings, this will require cluster-admin clusterrole.
+  ##
+  ## @param addonController.enabled
+  ## @param addonController.jobTTL - is addon job time-to-live period, this value is time.Duration-parseable string.
+  ## default value is "5m" if not provided.
+## @param addonController.jobImagePullPolicy - addon install job image pull policy.
+addonController:
+  enabled: true
+  jobTTL: "5m"
+  jobImagePullPolicy: IfNotPresent
+
+
+## @param keepAddons - keep Addon CR objects when delete this chart.
+keepAddons: false
+
+## @param addonChartLocationBase - KubeBlocks official addon's chart location base, to be released in an air-gapped environment.
+## if url has prefix "file://", KubeBlocks will use the helm charts copied from the addonChartsImage.
+##
+addonChartLocationBase: file://
+
+## @param addonChartsImage - addon charts image, used to copy Helm charts to the addon job container.
+## @param addonChartsImage.chartsPath - the helm charts path in the addon charts image.
+addonChartsImage:
+  # if the value of addonChartsImage.registry is not specified using `--set`, it will be set to the value of 'image.registry' by default
+  registry: ""
+  repository: apecloud/kubeblocks-charts
+  pullPolicy: IfNotPresent
+  tag: ""
+  chartsPath: /charts
+
+## @param addonHelmInstallOptions - addon helm install options.
+addonHelmInstallOptions:
+- "--atomic"
+- "--cleanup-on-fail"
+- "--wait"
+- "--insecure-skip-tls-verify"
+
+## @param upgradeAddons - upgrade addons when upgrade this chart.
+## For avoiding the addon CRs being upgraded when upgrade this chart, set this value to false.
+upgradeAddons: false
+
+## Prometheus Addon
+##
+prometheus:
+  ## If false, prometheus sub-chart will not be installed
+  ##
+  enabled: false
+
+## loki settings for kubeblocks
+loki:
+  enabled: false
+
+grafana:
+  ## If false, grafana sub-chart will not be installed
+  ##
+  enabled: false
+
+### snapshot-controller settings
+### ref: https://artifacthub.io/packages/helm/piraeus-charts/snapshot-controller#configuration
+###
+snapshot-controller:
+  ## @param snapshot-controller.enabled -- Enable snapshot-controller chart.
+  ##
+  enabled: true
+  ## @param snapshot-controller.replicaCount -- Number of replicas to deploy.
+  ##
+  replicaCount: 1
+  ## snapshot-controller image setting, easy access for CN users.
+  ## @param snapshot-controller.image.repository -- Repository to pull the image from.
+  ##
+  image:
+    # If the value of snapshot-controller.image.repository is not specified using --set,
+    # it will be set to the value of '${image.registry}/apecloud/snapshot-controller'.
+    repository: ""
+    tag: v6.2.1
+
+  tolerations:
+  - key: ack-pool-name
+    operator: Exists
+    effect: NoSchedule
+
+  volumeSnapshotClasses:
+  - name: default-vsc
+    driver: hostpath.csi.k8s.io
+    deletionPolicy: Delete
+
+  affinity: {}
+
+kubeblocks-csi-driver:
+  enabled: false
+
+
+cloudProvider:
+  ## cloudProvider secret settings
+  ## @param cloudProvider.accessKey -- S3 Access Key.
+  ## @param cloudProvider.secretKey -- S3 Secret Key.
+  ## @param cloudProvider.region -- S3 region.
+  ## @param cloudProvider.cloud -- cloud name: [aws,aliyun].
+  ## @param cloudProvider.bucket -- S3 Bucket.
+  accessKey: ""
+  secretKey: ""
+  region: ""
+  name: ""
+  bucket: ""
+
+## csi-s3 settings
+## ref: https://artifacthub.io/packages/helm/cloudve/csi-s3#configuration
+##
+csi-s3:
+  ## @param csi-s3.enabled -- Enable csi-s3 chart.
+  ##
+  enabled: false
+
+csi-hostpath-driver:
+  ## @param csi-hostpath-driver.enabled -- Enable csi-hostpath-driver chart.
+  ##
+  enabled: false
+  ## csi-hostpath-driver storageClass setting
+  ## @param csi-hostpath-driver.storageClass.create -- Specifies whether the storage class should be created.
+  ## @param csi-hostpath-driver.storageClass.default -- Specifies whether the storage class should be default after created.
+  ##
+  storageClass:
+    create: true
+    default: true
+
+developMode: false
+
+# the final host ports is the difference between include and exclude: include - exclude
+hostPorts:
+  # https://www.w3.org/Daemon/User/Installation/PrivilegedPorts.html
+  # The TCP/IP port numbers below 1024 are special in that normal users are not allowed to run servers on them.
+  # This is a security feaure, in that if you connect to a service on one of these ports you can be fairly sure
+  # that you have the real thing, and not a fake which some hacker has put up for you.
+  include:
+  - "1025-65536"
+  # https://kubernetes.io/docs/reference/networking/ports-and-protocols/
+  # exclude ports used by kubernetes
+  exclude:
+  - "6443"
+  - "10250"
+  - "10257"
+  - "10259"
+  - "2379-2380"
+  - "30000-32767"
