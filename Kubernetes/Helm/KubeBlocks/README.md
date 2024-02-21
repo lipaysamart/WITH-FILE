@@ -32,6 +32,76 @@ helm install kubeblocks kubeblocks/kubeblocks \
     --dry-run
 ```
 
+## Usage
+
+### CreateCluster
+
+#### Mysql
+```sh
+# 创建一个单副本
+kbcli cluster create <clusterName> --cluster-definition mysql --cluster-version 5.7.42 --set cpu=0.5,memory=1Gi,storage=20Gi,replicas=1 
+```
+#### Apecloud-Mysql
+
+```sh
+# 创建一个单副本
+kbcli cluster create <clusterName> --cluster-definition apecloud-mysql --cluster-version ac-mysql-8.0.30 --set cpu=0.5,memory=1Gi,storage=20Gi,replicas=1 
+
+# 查看事件输出
+kbcli cluster list-events <clusterName> -ndemo
+```
+
+##### SubCommand
+
+```sh
+--tolerations=[]
+--pvc name=dataName,size=20Gi
+--set storageClass=''
+--backup-enabled
+```
+
+### BenchMark
+
+```sh
+# 创建一个 Mysql BenchMark
+kbcli bench sysbench <testName> --cluster=<clusterName> --tables=10  --database=demo --size=25000 --user=root --password=frqtmqp7  -ndemo
+
+# 查看测试 
+kbcli bench list -ndemo
+
+# 查看 Pod 日志
+k -ndemo logs testingdemo-run-0-l9b8p
+
+# 删除测试
+kbcli bench delete <testName> -ndemo
+```
+
+## TroubleShooting
+
+- no persistent volumes available for this claim and no storage class is set
+
+原因: 未设置默认`SC`导致
+
+```yaml
+# 创建一个默认 SC
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  annotations:
+    # 设置默认 SC
+    storageclass.kubernetes.io/is-default-class: "true"
+  name: nfs-csi-stateful
+mountOptions:
+- hard
+- nfsvers=4.1
+parameters:
+  server: 172.16.10.254
+  share: /mnt/nfs-server/bigdata
+provisioner: nfs.csi.k8s.io
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+```
+
 ## Reference
 
 - [KubeBlocks Install](https://kubeblocks.io/docs/preview/user_docs/installation/install-with-helm/install-kubeblocks-with-helm)
