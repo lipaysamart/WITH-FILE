@@ -36,13 +36,13 @@ helm install kubeblocks kubeblocks/kubeblocks \
 
 ### CreateCluster
 
+>KubeBlocks 支持创建两种类型的 MySQL 集群：Standalone 和 RaftGroup Cluster。 Standalone仅支持一份副本，可用于对可用性要求较低的场景。对于可用性要求较高的场景，建议创建RaftGroup集群，即创建一个三副本集群。并且为了保证高可用性，所有副本默认分布在不同的节点上。
+
 - 查看可用的集群 `kbcli cd ls`
-- 查看可以的集群版本 `kbcli cv ls`
+- 查看可用的集群版本 `kbcli cv ls`
 
 
 #### Community-Mysql
-
->KubeBlocks 支持创建两种类型的 MySQL 集群：Standalone 和 RaftGroup Cluster。 Standalone仅支持一份副本，可用于对可用性要求较低的场景。对于可用性要求较高的场景，建议创建RaftGroup集群，即创建一个三副本集群。并且为了保证高可用性，所有副本默认分布在不同的节点上。
 
 ```sh
 # 创建单副本
@@ -63,6 +63,15 @@ k get secret -ndemo demo-stand-conn-credential  -ojsonpath='{.data.\password}' |
 # kubectl 连接数据库
 k exec -it demo-stand-mysql-0 -ndemo -- bash
 ```
+
+##### SubCommand
+
+```sh
+--tolerations=[]
+--set storageClass=''
+--backup-enabled
+```
+
 #### Apecloud-Mysql
 
 ```sh
@@ -83,14 +92,6 @@ kbcli cluster describe <clusterName> -ndemo
 
 # kbcli 连接数据库
 kbcli cluster connect <clusterName> -ndemo
-```
-
-##### SubCommand
-
-```sh
---tolerations=[]
---set storageClass=''
---backup-enabled
 ```
 
 ### VerticalScaling
@@ -204,6 +205,12 @@ STATUS=Abnormal 表示垂之缩放异常
 | Abnormal        | 集群可以访问，但部分Pod异常。这可能是操作过程的中间状态，系统会自动恢复，无需执行任何额外操作。等待集群状态更改为 Running 。 |
 | ConditionsError | 集群状态正常，但出现异常。可能是配置丢失或异常导致操作失败。                                                                 |
 | Failed          | 无法访问集群。检查 status.message 字符串并获取异常原因                                                                       |
+| Creating        | CreateClusterCompPhase 表示正在创建组件。                                                                                    |
+| Deleting        | DeletingClusterCompPhase 指示当前正在删除该组件。                                                                            |
+| Running         | RunningClusterCompPhase 指示该组件具有超过零个副本，并且所有 pod 都是最新的并处于“正在运行”状态。                            |
+| Stopped         | StoppedClusterCompPhase 表示该组件的副本数为零，并且所有 pod 均已被删除。                                                    |  |
+| Stopping        | StoppingClusterCompPhase 表示该组件有零个副本，并且有 pod 正在终止。                                                         |
+| Updating        | UpdatingClusterCompPhase 表示组件的副本数超过零，并且没有失败的 pod，当前正在更新。                                          |
 
 ## TroubleShooting
 
