@@ -1,5 +1,17 @@
 ## Install
 
+>安装前检查依赖 -- 请查看 `Preflight`
+
+### Kbcli Install
+
+```sh
+kbcli kubeblocks install --version='0.8.1' \
+--node-labels='"ack-pool-name=db-paas"' \
+--namespace=kb-system --create-namespace  \
+--set-json 'tolerations=[ { "key": "ack-pool-name", "operator": "Equal", "effect": "NoSchedule", "value": "db-paas" } ]' \
+--set-json 'affinity.nodeAffinity={"preferredDuringSchedulingIgnoredDuringExecution":[{"preference":{"matchExpressions":[{"key":"ack-pool-name","operator":"In","values":["db-paas"]}]},"weight":100}]}'
+```
+
 ### Install CRDs
 
 > CRD 和 程序不建议都用 Helm 装, 以便到时候 Helm 卸载时, CRD 不会被删除。
@@ -18,7 +30,6 @@ replicaCount: 3
 # 必须 3 副本才能开启
 admissionWebhooks:
   enabled: true
-
 ```
 
 ```sh
@@ -165,6 +176,28 @@ k -ndemo logs testingdemo-run-0-l9b8p
 kbcli bench delete <testName> -ndemo
 ```
 
+### AddOn
+
+```sh
+# 禁用插件
+kbcli addon disable <pluginName>
+
+# 启用插件
+kbcli addon enable <pluginName>
+
+# 列出插件
+kbcli addon list
+
+# 卸载插件
+kbcli addon uninstall  <pluginName>
+
+# 升级插件
+kbcli addon upgrade <pluginName>
+
+# 下载插件
+kbcli addon install <pluginName>
+```
+
 ## Tips
 
 ### Lifecycle
@@ -240,5 +273,7 @@ volumeBindingMode: WaitForFirstConsumer
 
 ## Reference
 
+- [helm Preflight](https://github.com/apecloud/kubeblocks/blob/main/deploy/helm/Chart.yaml)
+- [kbcli Preflight](https://github.com/apecloud/kbcli/blob/main/pkg/cmd/kubeblocks/data/kubeblocks_base_preflight.yaml)
 - [KubeBlocks Install](https://kubeblocks.io/docs/preview/user_docs/installation/install-with-helm/install-kubeblocks-with-helm)
 - [KubeBlocks Command Line](https://kubeblocks.io/docs/release-0.8/user_docs/cli)
