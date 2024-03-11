@@ -1,0 +1,36 @@
+apiVersion: apps.kubeblocks.io/v1alpha1
+kind: Cluster
+metadata:
+  annotations: {}
+  name: demo-stand
+  namespace: demo
+spec:
+  affinity:
+    podAntiAffinity: Preferred
+    tenancy: SharedNode
+    topologyKeys:
+    - ack-pool-name
+  clusterDefinitionRef: apecloud-mysql
+  clusterVersionRef: ac-mysql-8.0.30
+  componentSpecs:
+    - componentDefRef: mysql
+      monitor: false
+      name: mysql
+      replicas: 3
+      resources:
+      volumeClaimTemplates:
+        - name: data
+          spec:
+            storageClassName: db-paas-sc
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 20Gi
+  terminationPolicy: Delete
+  tolerations:
+  - key: ack-pool-name
+    value: db-paas
+    effect: NoSchedule
+    operator: Equal
+  

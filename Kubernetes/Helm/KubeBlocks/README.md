@@ -38,12 +38,14 @@ helm repo update
 
 helm install kubeblocks kubeblocks/kubeblocks \
     --namespace kb-system --create-namespace \
-    --set-json 'tolerations=[ { "key": "control-plane-taint", "operator": "Equal", "effect": "NoSchedule", "value": "true" } ]' \
-    --set-json 'dataPlane.tolerations=[{ "key": "data-plane-taint", "operator": "Equal", "effect": "NoSchedule", "value": "true" } ]' \
+    --set-json 'tolerations=[{ "key": "control-plane-taint", "operator": "Equal", "effect": "NoSchedule", "value": "true" }]' \
+    --set-json 'dataPlane.tolerations=[{ "key": "data-plane-taint", "operator": "Equal", "effect": "NoSchedule", "value": "true" }]' \
     --dry-run
 ```
 
 ## Usage
+
+>集群级配置作为所有组件的默认配置;如果组件中存在 Pod 亲和配置，则组件级配置将生效并覆盖默认的集群级配置
 
 ### CreateCluster
 
@@ -57,7 +59,12 @@ helm install kubeblocks kubeblocks/kubeblocks \
 
 ```sh
 # 创建单副本
-kbcli cluster create <clusterName> --cluster-definition mysql --cluster-version 5.7.42 --set cpu=0.5,memory=1Gi,storage=20Gi,replicas=1
+kbcli cluster create demo-stand \
+--tolerations='"ack-pool-name=db-paas:NoSchedule"' \
+--cluster-definition 'apecloud-mysql' --node-labels 'ack-pool-name=dp-paas' \
+--topology-keys 'ack-pool-name' --pod-anti-affinity Preferred \
+--set storageClass 'alicloud-disk-wffc' \
+--set cpu=1,memory=1Gi,storage=20Gi,replicas=1  -ndemo
 
 # 创建多副本
 kbcli cluster create <clusterName> --cluster-definition mysql --cluster-version 5.7.42 --set cpu=0.5,memory=1Gi,storage=20Gi,replicas=3
@@ -73,14 +80,6 @@ k get secret -ndemo demo-stand-conn-credential  -ojsonpath='{.data.\password}' |
 
 # kubectl 连接数据库
 k exec -it demo-stand-mysql-0 -ndemo -- bash
-```
-
-##### SubCommand
-
-```sh
---tolerations=[]
---set storageClass=''
---backup-enabled
 ```
 
 #### Apecloud-Mysql

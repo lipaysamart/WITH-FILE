@@ -10,9 +10,7 @@ docker run --name mysql \
 -e MYSQL_ROOT_PASSWORD=123456 \
 -e MYSQL_DATABASE=database \
 -e MYSQL_USER=admin \
--e MYSQL_PASSWORD=administor \
--v ./conf:/etc/mysql/conf.d \
--v ./db:/var/lib/mysql \
+-e MYSQL_PASSWORD=123456 \
 -d registry.cn-guangzhou.aliyuncs.com/kubernetes-default/mysql:5.7
 ```
 
@@ -461,6 +459,19 @@ port = 3306
     - 过小的话，考虑修改系统配置表，`/etc/security/limits.conf` 和 `/etc/security/limits.d/90-nproc.conf`
 
 ## Tips
+
+### Mysqldump Data Migration (docker)
+
+1.  Export Database
+`sudo docker exec -it halodb mysqldump -h 127.0.0.1 -u root -p --opt --default-character-set=utf8 --hex-blob --skip-triggers --skip-lock-tables > $PWD/mysqlBackup/halo.sql`
+
+2. Import Database
+`sudo docker exec -it halodb-back mysql -h 127.0.0.1 -P 3306 -u root -p halo < ./halo.sql`
+
+
+### Mysql Hight Availability
+
+
 
 ### PerformanceSchema
 
