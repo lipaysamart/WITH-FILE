@@ -471,7 +471,23 @@ port = 3306
 
 ### Mysql Hight Availability
 
+### Best
 
+- 查看local_infile参数状态（ON表示已开启）：`SHOW GLOBAL VARIABLES LIKE 'local_infile'; `
+- 开启local_infile参数：`SET GLOBAL local_infile=1;`
+
+1. 下载 RDS 备份数据
+
+>注意，这里的备份数据链接必须用引号包起来，是因为链接中带有参数，避免被编译。否则会报403错误
+
+```sh
+curl -C - --retry 2 "备份文件下载地址" -o /tmp/自定义文件名.tar.gz
+```
+
+2. 解压文件 `tar -zxvf fileName`
+
+```sh
+```
 
 ### PerformanceSchema
 
