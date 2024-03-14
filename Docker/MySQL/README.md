@@ -462,32 +462,75 @@ port = 3306
 
 ### Mysqldump Data Migration (docker)
 
-1.  Export Database
-`sudo docker exec -it halodb mysqldump -h 127.0.0.1 -u root -p --opt --default-character-set=utf8 --hex-blob --skip-triggers --skip-lock-tables > $PWD/mysqlBackup/halo.sql`
-
-2. Import Database
-`sudo docker exec -it halodb-back mysql -h 127.0.0.1 -P 3306 -u root -p halo < ./halo.sql`
-
-
-### Mysql Hight Availability
-
-### Best
+>恢复步骤: 导出 RDS 数据 -> 配置目标数据库 -> 导入备份数据 -> 测试数据是否一致 -> 修改DML相关 -> 上线新数据库
 
 - 查看local_infile参数状态（ON表示已开启）：`SHOW GLOBAL VARIABLES LIKE 'local_infile'; `
 - 开启local_infile参数：`SET GLOBAL local_infile=1;`
 
-1. 下载 RDS 备份数据
-
->注意，这里的备份数据链接必须用引号包起来，是因为链接中带有参数，避免被编译。否则会报403错误
+1. Export Database
 
 ```sh
-curl -C - --retry 2 "备份文件下载地址" -o /tmp/自定义文件名.tar.gz
+sudo docker exec <containerName> mysqldump -h 127.0.0.1 -u root -p'123456' <dbName> --opt --default-character-set=utf8 --hex-blob --skip-triggers --skip-lock-tables > $PWD/mysqlBackup/halo.sql
 ```
 
-2. 解压文件 `tar -zxvf fileName`
+2. Import Database
 
 ```sh
+sudo docker exec <containerName> mysql -h 127.0.0.1 -uroot -p'123456' -e 'create database <dbName>;'
+sudo docker exec <containerName> mysql -h 127.0.0.1 -P 3306 -u root -p'123456' < /tmp/halo.sql
 ```
+
+####  Recommend
+
+- mysqldump 常用方法
+
+```sh
+# 导出单个数据库（包含数据）
+mysqldump -u username -p'passWord' dbname > dbname.sql    
+
+# 导出数据库结构（不含数据）
+mysqldump -u username -p'passWord' -d dbname > dbname.sql    
+
+# 导出数据库中的某张数据表（包含数据）
+mysqldump -u username -p'passWord' dbname tablename > tablename.sql    
+
+# 导出数据库中的某张数据表的表结构（不含数据）
+mysqldump -u username -p'passWord' -d dbname tablename > tablename.sql   
+```
+
+- mysqldump 常用参数
+
+|Args|Explain|
+|:---|:---|
+|–add-drop-database|每个数据库创建之前添加drop数据库语句。|
+|–add-drop-table|每个数据表创建之前添加drop数据表语句。（默认为打开状态）| 
+|–skip-add-drop-table|关闭|
+|–add-locks|在每个表导出之前增加LOCK TABLES并且之后UNLOCK TABLE。（默认为打开状态）|
+|–skip-add-locks|关闭|
+|–comments|附加注释信息。（默认为打开状态）|
+|–skip-comments|关闭｜
+|–complete-insert|使用完整的insert语句(包含列名称)。这么做能提高插入效率，但是可能会受到max_allowed_packet参数的影响而导致插入失败。|
+|–compress|在客户端和服务器之间启用压缩传递所有信息|
+|–databases,|导出几个数据库。参数后面所有名字参量都被看作数据库名。|
+|–debug|输出debug信息，用于调试|
+|–default-character-set|设置默认字符集，默认值为utf8|
+|–delayed-insert|采用延时插入方式导出数据|
+|–events|导出事件|
+|–flush-logs|请注意：假如一次导出多个数据库(使用选项–databases或者–all-databases)，将会逐个数据库刷新日志。除使用–lock-all-tables或者–master-data外。在这种情况下，日志将会被刷新一次，相应的所以表同时被锁定。因此，如果打算同时导出和刷新日志应该使用–lock-all-tables 或者–master-data 和–flush-logs|
+|–flush-privileges|导出mysql数据库之后，发出一条FLUSH PRIVILEGES 语句。为了正确恢复，该选项应该用于导出mysql数据库和依赖mysql数据库数据的任何时候|
+|–force|在导出过程中忽略出现的SQL错误|
+|–host|导出的主机信息|
+|–ignore-table|不导出指定表。指定忽略多个表时，需要重复多次，每次一个表。每个表必须同时指定数据库和表名|
+|–lock-all-tables|提交请求锁定所有数据库中的所有表，以保证数据的一致性。这是一个全局读锁，并且自动关闭–single-transaction 和–lock-tables 选项。|
+|–no-create-db|只导出数据，而不添加CREATE DATABASE 语句|
+|–no-create-info|只导出数据，而不添加CREATE TABLE 语句。|
+|–no-data|不导出任何数据，只导出数据库表结构。|
+
+### Mysql Restore
+
+>source 还原时,导入文件时有大小限制不能超过2M  
+
+### Mysql Hight Availability
 
 ### PerformanceSchema
 
@@ -497,3 +540,7 @@ curl -C - --retry 2 "备份文件下载地址" -o /tmp/自定义文件名.tar.gz
 --查看是否开启
 SHOW VARIABLES LIKE 'performance_schema'
 ```
+
+## Reference
+
+- [Mysqldump 参数说明](https://developer.aliyun.com/article/528464)
