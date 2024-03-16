@@ -532,6 +532,73 @@ mysqldump -u username -p'passWord' -d dbname tablename > tablename.sql
 
 ### Mysql Hight Availability
 
+### Master Slave Replication
+
+>两台服务器数据库版本应一致，如果不一致，从服务器的版本要高于主服务器的版本。
+
+|Server|Address|
+|:---|:---|
+|Master| rm-xxxxxxxxxxx.mysql.rds.aliyuncs.com|
+|Slave| 172.16.1.2|
+
+#### Master 操作
+
+- 修改配置
+
+```ini
+[mysqld]
+server_id = 11
+log_bin = mysql-bin
+```
+
+- 创建 Slave 服务器连接的帐户, 用于同步
+
+```sql
+GRANT REPLICATION SLAVE ON *.* TO 'read_only'@'*';
+FLUSH PRIVILEGES;
+```
+
+- 查看 Master 二进制文件信息，记录 `File` 和 `Position`
+
+```sql
+show master status
+```
+
+重启 `Mysql` 服务 (此时因为有加入log-bin参数,因此开始有index产生了,在/var/lib/mysql目录下有.index档案纪录数据库的异动log)
+
+#### Slave 操作
+
+- 修改配置文件
+
+```ini
+[mysqld]
+
+server-id = 2
+log-bin=mysql-bin #开始bin-log日志
+master-host = rm-xxxxxxxxxx.mysql.rds.aliyuncs.com  #主数据库地址
+master-user = 'read_only' #执行登录用户
+master-password = 'X539H#*VGau4' #执行密码
+master-port = 3306 #默认端口
+master-connect-retry = 30 # 如果从服务器发现主服务器断掉重新连接时间30S
+
+expire_logs_days = 3 #保留3天的日志文件
+log-slave-updates
+# 如果要是复制多个表只要在下面直接添加(复制几个就添加几个)
+replicate-do-table=hrsoft_share.表名 # 只复制表名表
+replicate-do-table=hrsoft_share.表名
+```
+
+```sql
+slave-skip-errors = all # 跳过所有的错误错误，继续执行复制操作
+CHANGE MASTER TO
+  MASTER_HOST='rm-xxxxxxxxxx.mysql.rds.aliyuncs.com',
+  MASTER_PORT=3306,
+  MASTER_USER='read_only',
+  MASTER_PASSWORD='X539H#*VGau4',
+  MASTER_LOG_FILE='mysql-bin.000037',
+  MASTER_LOG_POS=134184;
+```
+
 ### PerformanceSchema
 
 >MySQL的performance schema 用于监控MySQL server在一个较低级别的运行过程中的资源消耗、资源等待等情况.

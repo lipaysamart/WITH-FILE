@@ -5,11 +5,16 @@
 ### Kbcli Install
 
 ```sh
-kbcli kubeblocks install --version='0.8.1' \
---node-labels='"ack-pool-name=db-paas"' \
---namespace=kb-system --create-namespace  \
---set-json 'tolerations=[ { "key": "ack-pool-name", "operator": "Equal", "effect": "NoSchedule", "value": "db-paas" } ]' \
---set-json 'affinity.nodeAffinity={"preferredDuringSchedulingIgnoredDuringExecution":[{"preference":{"matchExpressions":[{"key":"ack-pool-name","operator":"In","values":["db-paas"]}]},"weight":100}]}'
+kbcli kubeblocks install -f values.yaml --namespace=kb-system --create-namespace 
+```
+
+- subCommand
+
+```sh
+kbcli kubeblocks describe-config
+kbcli kubeblocks status
+kbcli kubeblocks upgrade
+kbcli kubeblocks list-versions
 ```
 
 ### Install CRDs
@@ -60,14 +65,12 @@ helm install kubeblocks kubeblocks/kubeblocks \
 ```sh
 # 创建单副本
 kbcli cluster create demo-stand \
---tolerations='"ack-pool-name=db-paas:NoSchedule"' \
---cluster-definition 'apecloud-mysql' --node-labels 'ack-pool-name=dp-paas' \
---topology-keys 'ack-pool-name' --pod-anti-affinity Preferred \
+--cluster-definition 'mysql' --cluster-version 'mysql-8.0.33' \
 --set storageClass 'alicloud-disk-wffc' \
 --set cpu=1,memory=1Gi,storage=20Gi,replicas=1  -ndemo
 
 # 创建多副本
-kbcli cluster create <clusterName> --cluster-definition mysql --cluster-version 5.7.42 --set cpu=0.5,memory=1Gi,storage=20Gi,replicas=3
+kbcli cluster create <clusterName> --cluster-definition 'mysql' --cluster-version 'mysql-5.7.42' --set cpu=0.5,memory=1Gi,storage=20Gi,replicas=3
 
 # 查看事件输出
 kbcli cluster list-events <clusterName> -ndemo
