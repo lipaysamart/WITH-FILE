@@ -14,7 +14,12 @@ spec:
         app: nginx
     spec:
       nodeSelector:
-        "kubernetes.io/os": linux
+        kubernetes.io/os: linux
+      tolerations:
+      - effect: NoSchedule
+        key: ack-pool-name
+        operator: Equal
+        value: db-paas
       containers:
         - name: statefulset-nfs
           image: mcr.microsoft.com/oss/nginx/nginx:1.19.5
@@ -35,8 +40,8 @@ spec:
     - metadata:
         name: persistent-storage
       spec:
-        storageClassName: nfs-csi
+        storageClassName: alicloud-disk-ssd
         accessModes: ["ReadWriteOnce"]
         resources:
           requests:
-            storage: 10Gi
+            storage: 20Gi

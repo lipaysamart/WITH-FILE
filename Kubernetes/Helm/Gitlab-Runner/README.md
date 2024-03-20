@@ -13,3 +13,4 @@ helm upgrade --install gitlab/gitlab-runner -f values.yaml --namespace gitlab-sy
 - [Install](https://archives.docs.gitlab.com/15.11/runner/install/)
 - [Configuration](https://archives.docs.gitlab.com/15.11/runner/configuration/)
 - [TroubleShooting](https://archives.docs.gitlab.com/15.11/runner/faq/)
+- [Kubernetes Runner Configure](https://docs.gitlab.com/runner/executors/kubernetes/index.html)

@@ -599,6 +599,14 @@ CHANGE MASTER TO
   MASTER_LOG_POS=134184;
 ```
 
+### Mysql To Postgres
+
+- 最简单的使用
+
+```
+docker run --rm -it ghcr.io/dimitri/pgloader:latest pgloader mysql://root:8U552asqZt4G@localhost:3306/prometheusalert pgsql://postgres:hb2w45fc@localhost:5432/prometheusalert
+```
+
 ### PerformanceSchema
 
 >MySQL的performance schema 用于监控MySQL server在一个较低级别的运行过程中的资源消耗、资源等待等情况.

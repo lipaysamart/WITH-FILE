@@ -1,7 +1,6 @@
 apiVersion: apps.kubeblocks.io/v1alpha1
 kind: Cluster
 metadata:
-  annotations: {}
   name: demo-stand
   namespace: demo
 spec:
@@ -9,7 +8,7 @@ spec:
     podAntiAffinity: Preferred
     tenancy: SharedNode
     topologyKeys:
-    - ack-pool-name
+    - kubernetes.io/hostname
   clusterDefinitionRef: apecloud-mysql
   clusterVersionRef: ac-mysql-8.0.30
   componentSpecs:
@@ -21,16 +20,10 @@ spec:
       volumeClaimTemplates:
         - name: data
           spec:
-            storageClassName: db-paas-sc
+            storageClassName: alicloud-disk-essd 
             accessModes:
               - ReadWriteOnce
             resources:
               requests:
                 storage: 20Gi
   terminationPolicy: Delete
-  tolerations:
-  - key: ack-pool-name
-    value: db-paas
-    effect: NoSchedule
-    operator: Equal
-  

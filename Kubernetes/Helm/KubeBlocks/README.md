@@ -59,7 +59,6 @@ helm install kubeblocks kubeblocks/kubeblocks \
 - 查看可用的集群 `kbcli cd ls`
 - 查看可用的集群版本 `kbcli cv ls`
 
-
 #### Community-Mysql
 
 ```sh
@@ -162,6 +161,36 @@ kbcli cluster delete-ops --name demo-stand-volumeexpansion-4dm5n -ndemo
 kbcli cluster describe-ops --name demo-stand-volumeexpansion-4dm5n -ndemo
 ```
 
+### Manager User Account
+
+角色权限级别:
+- Superuser: with all permissions.
+- ReadWrite: read and write.
+- ReadOnly: read only.
+
+```sh
+# 创建用户帐户
+kbcli -nmonitoring cluster create-account promalert-db --name ethan --password '7TM^rH'
+
+# 授权用户帐户角色只读权限
+kbcli -nmonitoring cluster grant-role promalert-db --name ethan --role ReadOnly
+
+# 检查用户帐户的角色级别
+kbcli -nmonitoring cluster describe-account promalert-db --name ethan
+
+# 撤销用户帐户角色授权
+kbcli -nmonitoring cluster revoke-role promalert-db --name ethan --role ReadOnly
+
+# 列出所有帐户
+kbcli -nmonitoring cluster list-accounts promalert-db
+
+# 删除用户帐户
+kbcli -nmonitoring cluster  delete-account promalert-db --name ethan
+```
+
+>出于安全原因， list-accounts 命令不会显示所有帐户。操作账户、超级用户账户等符合一定规则的高权限账户会被隐藏。请参阅下表查看隐藏帐户
+
+
 ### BenchMark
 
 ```sh
@@ -201,6 +230,12 @@ kbcli addon install <pluginName>
 ```
 
 ## Tips
+
+### Resource Scheduling
+
+>亲和性控制节点上 Pod 分配的选择逻辑。通过在不同节点上合理分配Kubernetes Pod，提高业务可用性、资源利用率和稳定性。
+>>集群级别的配置作为所有组件的默认配置；如果组件中存在 pod 亲和性配置，则组件级配置生效并覆盖默认的集群级配置。
+
 
 ### Lifecycle
 
@@ -279,3 +314,4 @@ volumeBindingMode: WaitForFirstConsumer
 - [kbcli Preflight](https://github.com/apecloud/kbcli/blob/main/pkg/cmd/kubeblocks/data/kubeblocks_base_preflight.yaml)
 - [KubeBlocks Install](https://kubeblocks.io/docs/preview/user_docs/installation/install-with-helm/install-kubeblocks-with-helm)
 - [KubeBlocks Command Line](https://kubeblocks.io/docs/release-0.8/user_docs/cli)
+- [Resource Scheduling Sample](https://kubeblocks.io/docs/release-0.8/user_docs/resource-scheduling)
