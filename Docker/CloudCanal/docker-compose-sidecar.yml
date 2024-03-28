@@ -1,0 +1,14 @@
+version: '3.3'
+
+services:
+  sidecar:
+    image: registry.cn-guangzhou.aliyuncs.com/kubernetes-default/clougence:cc-sidecar-3.4 
+    container_name: cloudcanal-sidecar
+    volumes:
+      - cloudcanal_sidecar_volume:/home/clougence
+    ports:
+      - "18787:8787"
+    entrypoint: ["tail","-f", "/dev/null"]
+volumes:
+  cloudcanal_sidecar_volume:
+    external: true

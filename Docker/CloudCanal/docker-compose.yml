@@ -1,0 +1,65 @@
+version: '3.3'
+services:
+  mysql:
+    image: registry.cn-guangzhou.aliyuncs.com/kubernetes-default/mysql:8.0.28
+    container_name: cloudcanal-mysql
+    ports:
+      - "25000:3306"
+    volumes:
+      - clougence_mysql_volume:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+    networks:
+      cloudcanal-network:
+        ipv4_address: 172.31.238.2
+    command: [ 'mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci' ]
+    privileged: true
+
+  console:
+    image: registry.cn-guangzhou.aliyuncs.com/kubernetes-default/clougence:cc-console-3.4
+    container_name: cloudcanal-console
+    ports:
+      - "8111:8111"
+      - "7007:7007"
+    depends_on:
+      - mysql
+    volumes:
+      - cloudcanal_console_volume:/home/clougence
+    # mac_address: ${CC_MAC}
+    networks:
+      cloudcanal-network:
+        ipv4_address: 172.31.238.3
+
+  sidecar:
+    image: registry.cn-guangzhou.aliyuncs.com/kubernetes-default/clougence:cc-sidecar-3.4
+    container_name: cloudcanal-sidecar
+    depends_on:
+      - console
+    volumes:
+      - cloudcanal_sidecar_volume:/home/clougence
+    ports:
+      - "18787:8787"
+    networks:
+      cloudcanal-network:
+        ipv4_address: 172.31.238.4
+
+  # prometheus:
+  #   image: clougence/cloudcanal-prometheus:${build_version}
+  #   container_name: cloudcanal-prometheus
+  #   depends_on:
+  #     - console
+  #   ports:
+  #     - "19090:9090"
+  #   networks:
+  #     cloudcanal-network:
+  #       ipv4_address: 172.31.238.5
+
+networks:
+  cloudcanal-network:
+    external: true
+
+volumes:
+  cloudcanal_console_volume:
+  cloudcanal_sidecar_volume:
+  clougence_mysql_volume:
+    external: true
